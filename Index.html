@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMERGENCY WEBSITES!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4fd1c7 0%, #2e8b8b 50%, #1e6e6e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #050a57, #050a57);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="90" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #050a57;
+            font-size: 1rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4fd1c7;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(79, 209, 199, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .character-count {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #2e8b8b, #2e8b8b);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 209, 199, 0.3);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>EMERGENCY WEBSITES!</h1>
+            <p>Ini adalah formulir untuk keadaan emergency, isi form ini, agar anda bisa menghubungi saya.</p>
+        </div>
+        
+        <div class="form-container">
+            <div id="successMessage" class="success-message">
+                I'll contact you soon!
+            </div>
+            
+            <form id="emergencyForm">
+                <!-- Your Name -->
+                <div class="form-group">
+                    <label for="yourName">Your Name <span class="required">*</span></label>
+                    <input type="text" id="yourName" name="yourName" required>
+                    <div class="error-message" id="yourNameError">Please enter your name</div>
+                </div>
+
+                <!-- Your Identity -->
+                <div class="form-group">
+                    <label for="yourIdentity">Your Identity <span class="required">*</span></label>
+                    <select id="yourIdentity" name="yourIdentity" required>
+                        <option value="">Select your relationship...</option>
+                        <option value="Family">Family</option>
+                        <option value="Friends">Friends</option>
+                        <option value="Co-Workers">Co-Workers</option>
+                        <option value="Outsiders">Outsiders</option>
+                    </select>
+                    <div class="error-message" id="yourIdentityError">Please select your identity</div>
+                </div>
+
+                <!-- Prove That We Know Each Other -->
+                <div class="form-group">
+                    <label for="proveKnowledge">Prove That We Know Each Other? <span class="required">*</span></label>
+                    <textarea id="proveKnowledge" name="proveKnowledge" 
+                              placeholder="Tell me something that proves we know each other..." 
+                              minlength="10" maxlength="1000" required></textarea>
+                    <div class="character-count">
+                        <span id="proveCount">0</span>/1000 characters (minimum 10)
+                    </div>
+                    <div class="error-message" id="proveKnowledgeError">Please enter between 10-1000 characters</div>
+                </div>
+
+                <!-- Your Phone Number -->
+                <div class="form-group">
+                    <label for="yourPhone">Your Phone Number <span class="required">*</span></label>
+                    <input type="tel" id="yourPhone" name="yourPhone" 
+                           placeholder="e.g., +628123456789" required>
+                    <div class="error-message" id="yourPhoneError">Please enter a valid phone number</div>
+                </div>
+
+                <!-- Your Email -->
+                <div class="form-group">
+                    <label for="yourEmail">Your Email <span class="required">*</span></label>
+                    <input type="email" id="yourEmail" name="yourEmail" 
+                           placeholder="your.email@example.com" required>
+                    <div class="error-message" id="yourEmailError">Please enter a valid email address</div>
+                </div>
+
+                <!-- Your City -->
+                <div class="form-group">
+                    <label for="yourCity">Your City <span class="required">*</span></label>
+                    <input type="text" id="yourCity" name="yourCity" 
+                           placeholder="e.g., Jakarta" required>
+                    <div class="error-message" id="yourCityError">Please enter your city</div>
+                </div>
+
+                <!-- Reason for Contacting -->
+                <div class="form-group">
+                    <label for="contactReason">What is your reason for contacting me? <span class="required">*</span></label>
+                    <textarea id="contactReason" name="contactReason" 
+                              placeholder="Please explain your reason for contacting..." 
+                              minlength="10" maxlength="1000" required></textarea>
+                    <div class="character-count">
+                        <span id="reasonCount">0</span>/1000 characters (minimum 10)
+                    </div>
+                    <div class="error-message" id="contactReasonError">Please enter between 10-1000 characters</div>
+                </div>
+
+                <button type="submit" class="submit-button">
+                    <span class="button-text">SUBMIT FORM</span>
+                    <div class="loading"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Function to get Jakarta time
+        function getJakartaTime() {
+            const now = new Date();
+            // Convert to Jakarta timezone (GMT+7)
+            const jakartaTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+            // Format as ISO string but replace Z with +07:00
+            const isoString = jakartaTime.toISOString();
+            return isoString.replace('Z', '+07:00');
+        }
+
+        // Character counters
+        document.getElementById('proveKnowledge').addEventListener('input', function() {
+            const count = this.value.length;
+            document.getElementById('proveCount').textContent = count;
+        });
+
+        document.getElementById('contactReason').addEventListener('input', function() {
+            const count = this.value.length;
+            document.getElementById('reasonCount').textContent = count;
+        });
+
+        // Form validation
+        function validateForm() {
+            let isValid = true;
+            const form = document.getElementById('emergencyForm');
+            const formData = new FormData(form);
+
+            // Reset all error messages
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.style.display = 'none';
+            });
+
+            // Validate required fields
+            const requiredFields = ['yourName', 'yourIdentity', 'yourPhone', 'yourEmail', 'yourCity'];
+            requiredFields.forEach(field => {
+                const value = formData.get(field);
+                if (!value || value.trim() === '') {
+                    document.getElementById(field + 'Error').style.display = 'block';
+                    isValid = false;
+                }
+            });
+
+            // Validate email
+            const email = formData.get('yourEmail');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (email && !emailRegex.test(email)) {
+                document.getElementById('yourEmailError').textContent = 'Please enter a valid email address';
+                document.getElementById('yourEmailError').style.display = 'block';
+                isValid = false;
+            }
+
+            // Validate phone number (basic validation)
+            const phone = formData.get('yourPhone');
+            const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
+            if (phone && !phoneRegex.test(phone)) {
+                document.getElementById('yourPhoneError').textContent = 'Please enter a valid phone number';
+                document.getElementById('yourPhoneError').style.display = 'block';
+                isValid = false;
+            }
+
+            // Validate textarea lengths
+            const proveKnowledge = formData.get('proveKnowledge');
+            if (!proveKnowledge || proveKnowledge.length < 10 || proveKnowledge.length > 1000) {
+                document.getElementById('proveKnowledgeError').style.display = 'block';
+                isValid = false;
+            }
+
+            const contactReason = formData.get('contactReason');
+            if (!contactReason || contactReason.length < 10 || contactReason.length > 1000) {
+                document.getElementById('contactReasonError').style.display = 'block';
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // Get geolocation
+        function getCurrentLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Geolocation is not supported by this browser.'));
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const geolocation = `${lat}, ${lng}`;
+                        const locationURL = `https://www.google.com/maps?q=${lat},${lng}`;
+                        
+                        resolve({
+                            geolocation: geolocation,
+                            locationURL: locationURL
+                        });
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                        resolve({
+                            geolocation: 'Location not available',
+                            locationURL: 'Location not available'
+                        });
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 60000
+                    }
+                );
+            });
+        }
+
+        // Submit form to Google Sheets
+        async function submitToGoogleSheets(formData, locationData) {
+            // PENTING: Ganti dengan URL deployment Google Apps Script Anda!
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyE3eDuwjgoWJLp3F5_zHkffrdCHbH7WQ0P1ZWXL21V-wIPtjshFXdjHZKOuOB0XH2P/exec';
+            
+            // Prepare data for Google Sheets dengan timestamp Jakarta
+            const submissionData = {
+                YourName: formData.get('yourName'),
+                YourIdentity: formData.get('yourIdentity'),
+                ProveThatWeKnowEachOther: formData.get('proveKnowledge'),
+                YourPhoneNumber: formData.get('yourPhone'),
+                YourEmail: formData.get('yourEmail'),
+                YourCity: formData.get('yourCity'),
+                Whatisyourreasonforcontactingme: formData.get('contactReason'),
+                Timestamp: getJakartaTime(), // Menggunakan Jakarta time
+                Geolocation: locationData.geolocation,
+                Location_URL: locationData.locationURL
+            };
+
+            console.log('Submitting data to Google Sheets:', submissionData);
+
+            try {
+                // Method 1: Coba dengan FormData (paling kompatibel)
+                console.log('Trying FormData method...');
+                const formDataPayload = new FormData();
+                
+                Object.keys(submissionData).forEach(key => {
+                    formDataPayload.append(key, submissionData[key]);
+                });
+                
+                const response = await fetch(scriptURL, {
+                    method: 'POST',
+                    body: formDataPayload
+                });
+
+                if (response.ok) {
+                    const responseText = await response.text();
+                    console.log('Response text:', responseText);
+                    
+                    try {
+                        const result = JSON.parse(responseText);
+                        console.log('Parsed response:', result);
+                        
+                        if (result.success) {
+                            return { success: true };
+                        } else {
+                            throw new Error(result.error || 'Submission failed');
+                        }
+                    } catch (parseError) {
+                        console.log('Response not JSON, assuming success');
+                        return { success: true };
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+            } catch (error) {
+                console.error('FormData method failed:', error);
+                
+                try {
+                    // Method 2: Fallback dengan URL-encoded
+                    console.log('Trying URL-encoded fallback...');
+                    const urlParams = new URLSearchParams();
+                    
+                    Object.keys(submissionData).forEach(key => {
+                        urlParams.append(key, submissionData[key]);
+                    });
+                    
+                    const fallbackResponse = await fetch(scriptURL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: urlParams.toString()
+                    });
+
+                    if (fallbackResponse.ok) {
+                        const fallbackText = await fallbackResponse.text();
+                        console.log('Fallback response:', fallbackText);
+                        return { success: true };
+                    } else {
+                        throw new Error(`Fallback failed: ${fallbackResponse.status}`);
+                    }
+                    
+                } catch (fallbackError) {
+                    console.error('All methods failed:', fallbackError);
+                    throw new Error(`Submission failed: ${error.message}`);
+                }
+            }
+        }
+
+        // Form submission handler
+        document.getElementById('emergencyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
+
+            const submitButton = document.querySelector('.submit-button');
+            const buttonText = document.querySelector('.button-text');
+            const loading = document.querySelector('.loading');
+            
+            // Show loading state
+            submitButton.disabled = true;
+            buttonText.style.opacity = '0';
+            loading.style.display = 'block';
+
+            try {
+                // Get form data
+                const formData = new FormData(this);
+                
+                // Get location data
+                const locationData = await getCurrentLocation();
+                
+                // Submit to Google Sheets
+                await submitToGoogleSheets(formData, locationData);
+                
+                // Show success message
+                document.getElementById('successMessage').style.display = 'block';
+                
+                // Scroll to success message
+                document.getElementById('successMessage').scrollIntoView({ 
+                    behavior: 'smooth' 
+                });
+                
+                // Redirect after 3 seconds
+                setTimeout(() => {
+                    window.location.href = 'https://google.com/404/';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Submission failed:', error);
+                alert('Submission failed. Please try again.');
+                
+                // Reset button state
+                submitButton.disabled = false;
+                buttonText.style.opacity = '1';
+                loading.style.display = 'none';
+            }
+        });
+
+        // Real-time validation
+        document.querySelectorAll('input, select, textarea').forEach(field => {
+            field.addEventListener('blur', function() {
+                // Hide error message when field is focused and corrected
+                const errorElement = document.getElementById(this.name + 'Error');
+                if (errorElement && this.value.trim() !== '') {
+                    errorElement.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
