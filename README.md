@@ -1,9 +1,6 @@
 # 🚨 Website Emergency Form
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/your-site-id/deploy-status)](https://app.netlify.com/sites/your-site-name/deploys)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-> Formulir kontak darurat yang responsif dengan deteksi perangkat canggih dan pengumpulan data otomatis ke Google Sheets.
+> Formulir website darurat yang responsif dengan deteksi perangkat canggih dan pengumpulan data otomatis ke Google Sheets.
 
 ## 🌟 Fitur Utama
 
