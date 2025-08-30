@@ -305,6 +305,109 @@
             return isoString.replace('Z', '+07:00');
         }
 
+        // Function to detect device information
+        function getDeviceInfo() {
+            const ua = navigator.userAgent;
+            
+            // Detect Device Type
+            let deviceType = 'Desktop';
+            if (/tablet|ipad|playbook|silk/i.test(ua)) {
+                deviceType = 'Tablet';
+            } else if (/mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(ua)) {
+                deviceType = 'Mobile';
+            }
+
+            // Detect Platform/OS
+            let platform = 'Unknown';
+            if (ua.indexOf('Windows NT 10.0') !== -1) platform = 'Windows 10';
+            else if (ua.indexOf('Windows NT 6.3') !== -1) platform = 'Windows 8.1';
+            else if (ua.indexOf('Windows NT 6.2') !== -1) platform = 'Windows 8';
+            else if (ua.indexOf('Windows NT 6.1') !== -1) platform = 'Windows 7';
+            else if (ua.indexOf('Windows NT 6.0') !== -1) platform = 'Windows Vista';
+            else if (ua.indexOf('Windows NT 5.1') !== -1) platform = 'Windows XP';
+            else if (ua.indexOf('Windows') !== -1) platform = 'Windows';
+            else if (ua.indexOf('Mac') !== -1) platform = 'MacOS';
+            else if (ua.indexOf('X11') !== -1) platform = 'UNIX';
+            else if (ua.indexOf('Linux') !== -1) platform = 'Linux';
+            else if (ua.indexOf('Android') !== -1) platform = 'Android';
+            else if (ua.indexOf('like Mac') !== -1) platform = 'iOS';
+
+            // Detect Browser
+            let browser = 'Unknown';
+            if (ua.indexOf('Firefox') !== -1) browser = 'Firefox';
+            else if (ua.indexOf('Chrome') !== -1) browser = 'Chrome';
+            else if (ua.indexOf('Safari') !== -1) browser = 'Safari';
+            else if (ua.indexOf('Edge') !== -1) browser = 'Edge';
+            else if (ua.indexOf('Opera') !== -1) browser = 'Opera';
+            else if (ua.indexOf('Trident') !== -1) browser = 'Internet Explorer';
+
+            return {
+                device: deviceType,
+                platform: platform,
+                browser: browser,
+                userAgent: ua
+            };
+        }
+
+        // Function to get IP and Network information
+        async function getIPandNetworkInfo() {
+            try {
+                // Try multiple IP services as fallback
+                const services = [
+                    'https://api.ipify.org?format=json',
+                    'https://httpbin.org/ip',
+                    'https://api.my-ip.io/ip.json'
+                ];
+
+                let ipData = null;
+                
+                for (const service of services) {
+                    try {
+                        const response = await fetch(service);
+                        const data = await response.json();
+                        
+                        if (data.ip) {
+                            ipData = { ip: data.ip };
+                            break;
+                        } else if (data.origin) {
+                            ipData = { ip: data.origin };
+                            break;
+                        }
+                    } catch (error) {
+                        console.log(`Failed to get IP from ${service}:`, error);
+                        continue;
+                    }
+                }
+
+                if (!ipData) {
+                    throw new Error('All IP services failed');
+                }
+
+                // Get additional network information
+                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                let networkType = 'Unknown';
+                
+                if (connection) {
+                    networkType = connection.effectiveType || connection.type || 'Unknown';
+                    if (connection.downlink) {
+                        networkType += ` (${connection.downlink} Mbps)`;
+                    }
+                }
+
+                return {
+                    ip: ipData.ip,
+                    network: networkType
+                };
+
+            } catch (error) {
+                console.error('Failed to get IP and network info:', error);
+                return {
+                    ip: 'Unable to detect',
+                    network: 'Unable to detect'
+                };
+            }
+        }
+
         // Character counters
         document.getElementById('proveKnowledge').addEventListener('input', function() {
             const count = this.value.length;
@@ -408,11 +511,11 @@
         }
 
         // Submit form to Google Sheets
-        async function submitToGoogleSheets(formData, locationData) {
+        async function submitToGoogleSheets(formData, locationData, deviceInfo, networkInfo) {
             // PENTING: Ganti dengan URL deployment Google Apps Script Anda!
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbyE3eDuwjgoWJLp3F5_zHkffrdCHbH7WQ0P1ZWXL21V-wIPtjshFXdjHZKOuOB0XH2P/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyUgz4rDWK6lC7KiT76sygMiKUT5Ls7y90r5nagWGTJaYDA7MCEZH3xv3LFQaYij3h2/exec';
             
-            // Prepare data for Google Sheets dengan timestamp Jakarta
+            // Prepare data for Google Sheets dengan timestamp Jakarta dan info tambahan
             const submissionData = {
                 YourName: formData.get('yourName'),
                 YourIdentity: formData.get('yourIdentity'),
@@ -423,7 +526,11 @@
                 Whatisyourreasonforcontactingme: formData.get('contactReason'),
                 Timestamp: getJakartaTime(), // Menggunakan Jakarta time
                 Geolocation: locationData.geolocation,
-                Location_URL: locationData.locationURL
+                Location_URL: locationData.locationURL,
+                IP_Address: networkInfo.ip,
+                Network: networkInfo.network,
+                Device: deviceInfo.device,
+                Platform: deviceInfo.platform + ' - ' + deviceInfo.browser
             };
 
             console.log('Submitting data to Google Sheets:', submissionData);
@@ -520,11 +627,19 @@
                 // Get form data
                 const formData = new FormData(this);
                 
+                // Get device information
+                const deviceInfo = getDeviceInfo();
+                console.log('Device info:', deviceInfo);
+                
+                // Get IP and network information
+                const networkInfo = await getIPandNetworkInfo();
+                console.log('Network info:', networkInfo);
+                
                 // Get location data
                 const locationData = await getCurrentLocation();
                 
                 // Submit to Google Sheets
-                await submitToGoogleSheets(formData, locationData);
+                await submitToGoogleSheets(formData, locationData, deviceInfo, networkInfo);
                 
                 // Show success message
                 document.getElementById('successMessage').style.display = 'block';
@@ -534,10 +649,10 @@
                     behavior: 'smooth' 
                 });
                 
-                // Redirect after 3 seconds
+                // Redirect after 1 seconds
                 setTimeout(() => {
-                    window.location.href = 'https://google.com/404/';
-                }, 3000);
+                    window.location.href = 'https://t.me/Cosmic_Alvin';
+                }, 1000);
                 
             } catch (error) {
                 console.error('Submission failed:', error);
